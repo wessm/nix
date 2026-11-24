@@ -4,8 +4,8 @@
 set -e
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-    echo "Usage: $0 <REPO> [GH_TOKEN]"
-    exit 1
+  echo "Usage: $0 <REPO> [GH_TOKEN]"
+  exit 1
 fi
 
 REPO="$1"
@@ -14,15 +14,15 @@ GITHUB_REPO_URL="https://${GH_TOKEN:+$GH_TOKEN@}github.com/$REPO.git"
 
 echo "Setting up user password..."
 while true; do
-    PASSWORD=$(gum input --password --placeholder "Enter password for user $USERNAME")
-    PASSWORD_CONFIRM=$(gum input --password --placeholder "Confirm password")
+  PASSWORD=$(gum input --password --placeholder "Enter password for user $USERNAME")
+  PASSWORD_CONFIRM=$(gum input --password --placeholder "Confirm password")
 
-    if [ "$PASSWORD" = "$PASSWORD_CONFIRM" ]; then
-        echo "Password confirmed ✓"
-        break
-    else
-        echo "Passwords do not match. Please try again."
-    fi
+  if [ "$PASSWORD" = "$PASSWORD_CONFIRM" ]; then
+    echo "Password confirmed ✓"
+    break
+  else
+    echo "Passwords do not match. Please try again."
+  fi
 done
 # Clean up any previous installation attempts that may have left mounted devices
 sudo umount -R /mnt 2>/dev/null || true
@@ -44,16 +44,16 @@ echo "Getting available machine configurations..."
 AVAILABLE_MACHINES=$(nix --extra-experimental-features nix-command --extra-experimental-features flakes eval --impure --raw --expr 'let flake = builtins.getFlake (toString ./flake); in builtins.concatStringsSep "\n" (builtins.attrNames flake.nixosConfigurations)')
 
 if [ -z "$AVAILABLE_MACHINES" ]; then
-    echo "ERROR: No machine configurations found in flake!"
-    exit 1
+  echo "ERROR: No machine configurations found in flake!"
+  exit 1
 fi
 
 echo "Select machine configuration:"
 MACHINE=$(echo "$AVAILABLE_MACHINES" | gum choose)
 
 if [ -z "$MACHINE" ]; then
-    echo "No machine selected. Exiting."
-    exit 1
+  echo "No machine selected. Exiting."
+  exit 1
 fi
 
 echo "Selected machine: $MACHINE ✓"
@@ -63,7 +63,6 @@ echo "Getting username from flake..."
 USERNAME=$(nix --extra-experimental-features nix-command --extra-experimental-features flakes eval --impure --raw --expr 'let flake = builtins.getFlake (toString ./flake); in flake.vars.userName')
 echo "Username: $USERNAME"
 echo ""
-
 
 echo "Installing NixOS for $MACHINE"
 
@@ -78,7 +77,7 @@ sudo swapon /mnt/swapfile
 
 echo ""
 echo "Setting up user password file..."
-echo "$PASSWORD" | mkpasswd -m sha-512 -s | sudo tee /mnt/persistent/passwd_$USERNAME > /dev/null
+echo "$PASSWORD" | mkpasswd -m sha-512 -s | sudo tee /mnt/persistent/passwd_$USERNAME >/dev/null
 sudo chown root:root /mnt/persistent/passwd_$USERNAME
 echo "Password file created ✓"
 echo ""
@@ -150,8 +149,8 @@ echo ""
 read -p "Reboot now? (y/N): " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "Rebooting..."
-    sudo reboot
+  echo "Rebooting..."
+  sudo reboot
 else
-    echo "Reboot skipped. Remember to reboot manually when ready."
+  echo "Reboot skipped. Remember to reboot manually when ready."
 fi
